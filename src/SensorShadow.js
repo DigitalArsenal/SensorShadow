@@ -39,7 +39,6 @@ const defaultValues = {
  * @property {number} alpha - The alpha value for the sensor shadow.
  * @property {boolean} frustum - Whether the frustum is enabled.
  * @property {number} size - The size of the sensor shadow.
- * @property {function|null} preUpdateListener - A pre-update listener function.
  */
 class SensorShadow {
   /**
@@ -104,8 +103,6 @@ class SensorShadow {
     this.size = defaultValue(options.size, defaultValues.size);
     this.frustum = defaultValue(options.frustum, defaultValues.frustum);
     this.depthBias = defaultValue(options.depthBias, defaultValues.depthBias);
-
-    this.preUpdateListener = null;
 
     if (this.cameraPosition && this.viewPosition) {
       this._addToScene();
