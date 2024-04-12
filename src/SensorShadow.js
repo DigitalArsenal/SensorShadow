@@ -60,7 +60,7 @@ class SensorShadow {
    */
   constructor(viewer, options = {}) {
     this.viewer = viewer;
-
+    this._isDestroyed = false;
     if (
       typeof options.cameraPosition.getValue !== "function" &&
       !(options.cameraPosition instanceof Cartesian3)
@@ -109,6 +109,44 @@ class SensorShadow {
     }
   }
 
+  destroy() {
+    // If a pre-update listener was added, remove it
+    if (this.preUpdateListener) {
+        this.viewer.scene.preUpdate.removeEventListener(this.preUpdateListener);
+        this.preUpdateListener = null;
+    }
+  
+    // If there's a shadow map, dispose of it
+    if (this.viewShadowMap) {
+        this.viewShadowMap.dispose();
+        this.viewShadowMap = null;
+    }
+  
+    // Remove the post-process stage if it has been added
+    if (this.postProcess) {
+        this.viewer.scene.postProcessStages.remove(this.postProcess);
+        this.postProcess = null;
+    }
+  
+    // Remove this object from the scene primitives if it has been added
+    this.viewer.scene.primitives.remove(this);
+  
+    // Explicitly remove references to potentially large objects to assist with garbage collection
+    for (let property in this) {
+        if (this.hasOwnProperty(property)) {
+            delete this[property];
+        }
+    }
+  
+    // Set the destroyed flag
+    this._isDestroyed = true;
+  }
+
+  isDestroyed() {
+    // Return the destroyed status
+    return this._isDestroyed;
+  }
+  
   /**
    * Get the actual position of the camera.
    * This method calculates the position vector based on the current time.
